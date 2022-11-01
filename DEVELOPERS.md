@@ -40,3 +40,4 @@ yarn build
 -   use React Router to handle multiple pages
 -   Install more eslint plugins
 -   Configure Husky, lint-staged, pre-commit hooks to check code quality
+-   Optional tasks' testing case
