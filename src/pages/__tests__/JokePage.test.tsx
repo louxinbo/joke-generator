@@ -106,4 +106,59 @@ describe('<JokePage />', () => {
 
         expect(await screen.findByText(/Failed to fetch/i)).toBeInTheDocument();
     });
+
+    it('Should render filter button groups and one line mode switch', async () => {
+        // Mock unsuccessful api call
+        global.fetch = jest.fn((url: string) =>
+            Promise.resolve({
+                ok: false,
+                json: () => Promise.resolve('Failed to fetch'),
+            })
+        ) as any;
+        const fetchSpy = jest.spyOn(global, 'fetch');
+
+        render(<JokePage />);
+
+        // all filter
+        expect(fetchSpy).toHaveBeenLastCalledWith(
+            'https://official-joke-api.appspot.com/jokes/random',
+            { method: 'GET' }
+        );
+        expect(await screen.findByText(/Failed to fetch/i)).toBeInTheDocument();
+        const generalFilterButton = screen.getByText(/general/i);
+        const programmingFilterButton = screen.getByText(/programming/i);
+        const quantitySwitch = screen.getByLabelText('one-line-mode-switch');
+
+        // General filter
+        //The filter button should change the url then trigger refetch
+        act(() => {
+            generalFilterButton.click();
+        });
+        expect(fetchSpy).toHaveBeenLastCalledWith(
+            'https://official-joke-api.appspot.com/jokes/general/random',
+            { method: 'GET' }
+        );
+        expect(await screen.findByText(/Failed to fetch/i)).toBeInTheDocument();
+
+        // Programming filter
+        //The filter button should change the url then trigger refetch
+        act(() => {
+            programmingFilterButton.click();
+        });
+        expect(fetchSpy).toHaveBeenLastCalledWith(
+            'https://official-joke-api.appspot.com/jokes/programming/random',
+            { method: 'GET' }
+        );
+        expect(await screen.findByText(/Failed to fetch/i)).toBeInTheDocument();
+
+        //The switch should change the url then trigger refetch
+        act(() => {
+            quantitySwitch.click();
+        });
+        expect(fetchSpy).toHaveBeenLastCalledWith(
+            'https://official-joke-api.appspot.com/jokes/programming/ten',
+            { method: 'GET' }
+        );
+        expect(await screen.findByText(/Failed to fetch/i)).toBeInTheDocument();
+    });
 });
