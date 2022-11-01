@@ -18,6 +18,7 @@ export function JokeTable({ jokes, id, loading }: Props) {
                     <TableRow>
                         <TableCell>Setup</TableCell>
                         <TableCell>Punchline</TableCell>
+                        <TableCell>Star</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
