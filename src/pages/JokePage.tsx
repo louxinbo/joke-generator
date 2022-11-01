@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { createContext, useState } from 'react';
 import Container from '@mui/material/Container';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -14,12 +14,17 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import { FullScreenDialog } from './FavModal';
+import { usePersistState } from '../hooks/usePersistState';
+import { FavoriteContext } from './util';
 
 export function JokePage() {
+    const [modalOpen, setModalOpen] = useState(false);
     const [category, setCategory] = useState<JokeType>();
     const [quantity, setQuantity] = useState<JokeQuantity>('random');
     const url = getUrl(quantity, category);
     const { data, loading, error, refetch } = useQuery<Joke>(url);
+    const [favorite, setFavorite] = usePersistState<Joke[]>([], 'favorite');
 
     const buttons = [
         <Button
@@ -46,82 +51,102 @@ export function JokePage() {
     ];
 
     return (
-        <Container maxWidth="lg">
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1 }}
-                        >
-                            Jokes Generator
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-            </Box>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-
-                    '& > *': {
-                        m: 1,
-                    },
-                }}
-            >
-                <ButtonGroup size="small" aria-label="filter-buttons">
-                    {buttons}
-                </ButtonGroup>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={quantity === 'random'}
-                            onChange={() =>
-                                setQuantity((quantityMode) =>
-                                    quantityMode === 'random' ? 'ten' : 'random'
-                                )
-                            }
-                            inputProps={{
-                                'aria-label': 'one-line-mode-switch',
-                            }}
-                        />
-                    }
-                    label="One Line Mode"
-                />
-            </Box>
-
-            {loading && (
+        <FavoriteContext.Provider value={{ favorite, setFavorite }}>
+            <Container maxWidth="lg">
+                <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="static">
+                        <Toolbar>
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{ flexGrow: 1 }}
+                            >
+                                Jokes Generator
+                            </Typography>
+                            <Button
+                                color="inherit"
+                                onClick={() => {
+                                    setModalOpen(true);
+                                }}
+                            >
+                                My Favorite
+                            </Button>
+                        </Toolbar>
+                    </AppBar>
+                </Box>
                 <Box
                     sx={{
                         display: 'flex',
-                        justifyContent: 'center',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+
+                        '& > *': {
+                            m: 1,
+                        },
                     }}
                 >
-                    <CircularProgress
-                        aria-describedby="jokes-table"
-                        aria-label="loading-jokes"
+                    <ButtonGroup size="small" aria-label="filter-buttons">
+                        {buttons}
+                    </ButtonGroup>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={quantity === 'random'}
+                                onChange={() =>
+                                    setQuantity((quantityMode) =>
+                                        quantityMode === 'random'
+                                            ? 'ten'
+                                            : 'random'
+                                    )
+                                }
+                                inputProps={{
+                                    'aria-label': 'one-line-mode-switch',
+                                }}
+                            />
+                        }
+                        label="One Line Mode"
                     />
                 </Box>
-            )}
-            {error && <Alert severity="warning">{error}</Alert>}
-            {data && (
-                <JokeTable jokes={data} id="jokes-table" loading={loading} />
-            )}
-            {!loading && (
-                <Box
-                    sx={{
-                        marginY: 2,
-                        display: 'flex',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Button variant="contained" onClick={refetch}>
-                        Refresh
-                    </Button>
-                </Box>
-            )}
-        </Container>
+
+                {loading && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <CircularProgress
+                            aria-describedby="jokes-table"
+                            aria-label="loading-jokes"
+                        />
+                    </Box>
+                )}
+                {error && <Alert severity="warning">{error}</Alert>}
+                {data && (
+                    <JokeTable
+                        jokes={data}
+                        id="jokes-table"
+                        loading={loading}
+                    />
+                )}
+                {!loading && (
+                    <Box
+                        sx={{
+                            marginY: 2,
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Button variant="contained" onClick={refetch}>
+                            Refresh
+                        </Button>
+                    </Box>
+                )}
+                <FullScreenDialog
+                    isOpen={modalOpen}
+                    dismiss={() => setModalOpen(false)}
+                />
+            </Container>
+        </FavoriteContext.Provider>
     );
 }
