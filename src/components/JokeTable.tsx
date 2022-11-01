@@ -8,11 +8,11 @@ import TableRow from '@mui/material/TableRow';
 import { Joke } from '../types';
 import JokeRow from './JokeRow';
 
-type Props = { jokes: Joke[] };
+type Props = { jokes: Joke[]; id: string; loading: boolean };
 
-export function JokeTable({ jokes }: Props) {
+export function JokeTable({ jokes, id, loading }: Props) {
     return (
-        <TableContainer>
+        <TableContainer id={id} aria-busy={loading ? 'true' : 'false'}>
             <Table>
                 <TableHead>
                     <TableRow>

@@ -23,7 +23,6 @@ export default function useQuery<T>(url: string) {
             const res = await fetch(url, {
                 method: 'GET',
             });
-            console.log(res);
             if (res.ok) {
                 const data = await res.json();
                 setData(Array.isArray(data) ? data : [data]);
