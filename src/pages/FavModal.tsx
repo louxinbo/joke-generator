@@ -29,7 +29,6 @@ export function FullScreenDialog({ isOpen, dismiss }: Props) {
     return (
         <div>
             <Dialog fullScreen open={isOpen} TransitionComponent={Transition}>
-                return (
                 <Container maxWidth="lg">
                     <Box sx={{ flexGrow: 1 }}>
                         <AppBar position="static">
